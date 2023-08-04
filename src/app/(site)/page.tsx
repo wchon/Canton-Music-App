@@ -5,12 +5,18 @@ import ListItem from '../../../components/ListItem'
 export default function Home() {
   return (
     <div className='
-          bg-neutral-900
+          bg-neutral-200
           rounded-lg
           h-full
           w-full
           overflow-hidden
-          overflow-y-auto'>
+          overflow-y-auto
+          bg-hero
+          bg-cover
+          bg-center 
+          bg-no-repeat
+          bg-opacity-20'
+          >
             <Header>
               <div className="mb-2">
                 <h1 className="
@@ -33,6 +39,7 @@ export default function Home() {
                     image="/image/liked.png"
                     name="Liked Songs"
                     href="liked"
+                    
                   />
                 </div>
               </div>
