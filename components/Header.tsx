@@ -5,6 +5,11 @@ import { twMerge } from "tailwind-merge";
 import {RxCaretLeft, RxCaretRight} from "react-icons/rx"
 import { HiHome, HiSearch } from "react-icons/hi";
 import Button from "./Button";
+import useAuthModal from "../hooks/useAuthModal";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useUser } from "../hooks/useUser";
+import { FaUserAlt } from "react-icons/fa";
+import toast from "react-hot-toast";
 interface HeaderProps {
     children: React.ReactNode;
     className?: string;
@@ -15,8 +20,20 @@ const Header: React.FC<HeaderProps> = ({
     className
 }) => {
     const router = useRouter();
-    const handleLogout = () => {
-        //handle logout
+    const authModal = useAuthModal();
+    const supabaseClient = useSupabaseClient();
+    const {user, subscription} = useUser();
+
+    const handleLogout = async () => {
+        const {error} = await supabaseClient.auth.signOut();
+        router.refresh();
+
+        if (error) {
+            toast.error(error.message);
+        }
+        else {
+            toast.success('Logged out!');
+        }
     }
     return (
         <div className={twMerge(`
@@ -99,17 +116,44 @@ const Header: React.FC<HeaderProps> = ({
                         items-center
                         gap-x-4"
                     >
+                        {user ?(
+                            <div 
+                                className="
+                                    flex
+                                    gap-x-4
+                                    items-center"
+                            >
+                                <Button
+                                    className="
+                                        bg-white
+                                        px-6
+                                        py-2"
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </Button>
+                                <Button
+                                    onClick={() => router.push('/account')}
+                                    className="bg-white"
+                                >
+                                    <FaUserAlt />
+                                </Button>
+                                
+                            </div>   
+                        ) : (
                             <>
-                            <div className="flex justify-between
-                        items-center
-                        gap-x-4">
+                            <div className="
+                                flex justify-between
+                                items-center
+                                gap-x-4"
+                            >
                                 <Button 
+                                    onClick={authModal.onOpen}
                                     className="
                                         bg-transparent
                                         text-neutral-300
                                         font-medium 
                                     "
-                                    onClick={()=>{}}
                                 >
                                     Sign up
                                 </Button>
@@ -119,13 +163,15 @@ const Header: React.FC<HeaderProps> = ({
                                         px-6
                                         py-2
                                     "
-                                    onClick={()=>{}}
+                                    onClick={authModal.onOpen}
                                 >
                                     Log in
                                 </Button>
                                 
                             </div>
                             </>
+                        )}
+                           
                         </div>
             </div>        
             {children}
